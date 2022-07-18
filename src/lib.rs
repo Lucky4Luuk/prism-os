@@ -1,6 +1,13 @@
+use bitmap_font::{tamzen::FONT_5x9, TextStyle};
+use embedded_graphics::{pixelcolor::BinaryColor, prelude::*, text::Text};
+
 mod display;
 
 use display::Display;
+
+const BUFFER_WIDTH: usize = 336;
+const BUFFER_HEIGHT: usize = 144;
+const BUFFER_LEN: usize = BUFFER_WIDTH * BUFFER_HEIGHT * 4;
 
 #[derive(Default)]
 pub struct FrameInfo<'frame> {
@@ -10,14 +17,20 @@ pub struct FrameInfo<'frame> {
 impl FrameInfo<'_> {
     pub fn new(mem_addr: u32) -> Self {
         Self {
-            buf: unsafe { std::slice::from_raw_parts_mut(mem_addr as *mut u8, 168*72*4) },
+            buf: unsafe { std::slice::from_raw_parts_mut(mem_addr as *mut u8, 336*144*4) },
         }
     }
+}
+
+enum State {
+    Splashscreen,
+    CommandLineInterface,
 }
 
 struct Os {
     input: u64,
     total_time: f32,
+    state: State,
 
     pub display: Display,
 }
@@ -27,6 +40,7 @@ impl Os {
         Self {
             input: 0, // No keys pressed
             total_time: 0f32,
+            state: State::Splashscreen,
 
             display: Display::new(),
         }
@@ -41,20 +55,14 @@ impl Os {
     }
 
     fn draw(&mut self, info: FrameInfo) {
-        self.display.clear();
-        for x in 0..56 {
-            for y in 0..24 {
-                let presence = ((self.total_time * 50f32) as usize + x + y) % 56;
-                if presence < 6 {
-                    for ix in 0..3 {
-                        for iy in 0..3 {
-                            self.display.set(x*3+ix, y*3+iy, [255; 4]);
-                        }
-                    }
-                } else if presence < 36 {
-                    self.display.set(x*3+1, y*3+1, [255; 4]);
-                }
-            }
+        match self.state {
+            State::Splashscreen => {
+                self.display.clear();
+                let t = format!("time: {}", self.total_time);
+                let text = Text::new(&t, Point::zero(), TextStyle::new(&FONT_5x9, BinaryColor::On));
+                text.draw(&mut self.display.color_converted()).expect("Failed to draw text!");
+            },
+            _ => {},
         }
         self.display.flush(info.buf);
     }
