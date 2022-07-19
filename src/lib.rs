@@ -57,7 +57,7 @@ impl Os {
     fn draw(&mut self, info: FrameInfo) {
         match self.state {
             State::Splashscreen => {
-                self.display.clear();
+                self.display.clear_black();
                 let t = format!("time: {}", self.total_time);
                 let text = Text::new(&t, Point::zero(), TextStyle::new(&FONT_5x9, BinaryColor::On));
                 text.draw(&mut self.display.color_converted()).expect("Failed to draw text!");

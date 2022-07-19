@@ -25,7 +25,7 @@ impl Display {
         dest.copy_from_slice(&self.buf);
     }
 
-    pub fn clear(&mut self) {
+    pub fn clear_black(&mut self) {
         for i in 0..BUFFER_LEN {
             self.buf[i] = 0;
             if i % 3 == 3 {
