@@ -9,10 +9,6 @@ const BUFFER_WIDTH: usize = 336;
 const BUFFER_HEIGHT: usize = 144;
 const BUFFER_LEN: usize = BUFFER_WIDTH * BUFFER_HEIGHT * 4;
 
-extern "C" {
-    fn fs_create_folder(path_str_ptr: *const u8, len: u32);
-}
-
 #[derive(Default)]
 pub struct FrameInfo<'frame> {
     buf: &'frame mut [u8],
@@ -27,6 +23,7 @@ impl FrameInfo<'_> {
 }
 
 enum State {
+    Init,
     Splashscreen,
     CommandLineInterface,
 }
@@ -37,6 +34,8 @@ struct Os {
     state: State,
 
     pub display: Display,
+
+    test: String,
 }
 
 impl Os {
@@ -44,10 +43,17 @@ impl Os {
         Self {
             input: 0, // No keys pressed
             total_time: 0f32,
-            state: State::Splashscreen,
+            state: State::Init,
 
             display: Display::new(),
+
+            test: String::new(),
         }
+    }
+
+    fn initialize(&mut self) {
+        self.test = std::fs::read_to_string("disk/hello.txt").unwrap();
+        self.state = State::Splashscreen;
     }
 
     fn update_input(&mut self, input: u64) {
@@ -56,13 +62,19 @@ impl Os {
 
     fn update(&mut self, delta_s: f32) {
         self.total_time += delta_s;
+
+        match self.state {
+            State::Init => self.initialize(),
+            _ => {},
+        }
     }
 
     fn draw(&mut self, info: FrameInfo) {
         match self.state {
             State::Splashscreen => {
                 self.display.clear_black();
-                let t = format!("time: {}", self.total_time);
+                let cur_dir: String = std::env::current_dir().ok().map(|p| p.display().to_string()).unwrap_or(String::from("FAILED"));
+                let t = format!("time: {}\ncur_dir: {}\ndisk/hello.txt: {}", self.total_time, cur_dir, self.test);
                 let text = Text::new(&t, Point::zero(), TextStyle::new(&FONT_5x9, BinaryColor::On));
                 text.draw(&mut self.display.color_converted()).expect("Failed to draw text!");
             },
