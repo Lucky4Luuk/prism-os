@@ -9,6 +9,10 @@ const BUFFER_WIDTH: usize = 336;
 const BUFFER_HEIGHT: usize = 144;
 const BUFFER_LEN: usize = BUFFER_WIDTH * BUFFER_HEIGHT * 4;
 
+extern "C" {
+    fn fs_create_folder(path_str_ptr: *const u8, len: u32);
+}
+
 #[derive(Default)]
 pub struct FrameInfo<'frame> {
     buf: &'frame mut [u8],
