@@ -52,7 +52,8 @@ impl Os {
     }
 
     fn initialize(&mut self) {
-        self.test = std::fs::read_to_string("disk/hello.txt").unwrap();
+        self.test = std::fs::read_to_string("disk/hello.txt").unwrap().trim().to_string();
+        // self.test = "shit".to_owned();
         self.state = State::Splashscreen;
     }
 
