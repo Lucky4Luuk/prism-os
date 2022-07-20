@@ -2,6 +2,7 @@ use bitmap_font::{tamzen::FONT_5x9, TextStyle};
 use embedded_graphics::{pixelcolor::BinaryColor, prelude::*, text::Text};
 
 mod display;
+mod assets;
 
 use display::Display;
 
