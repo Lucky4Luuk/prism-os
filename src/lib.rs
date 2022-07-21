@@ -55,7 +55,6 @@ impl Os {
 
     fn initialize(&mut self) {
         self.test = std::fs::read_to_string("disk/hello.txt").unwrap().trim().to_string();
-        // self.test = "shit".to_owned();
         self.state = State::Splashscreen;
     }
 
@@ -68,6 +67,9 @@ impl Os {
 
         match self.state {
             State::Init => self.initialize(),
+            State::Splashscreen => if self.total_time > 2.0 {
+                self.state = State::CommandLineInterface;
+            }
             _ => {},
         }
     }
