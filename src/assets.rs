@@ -1,10 +1,10 @@
+use embedded_graphics::pixelcolor::*;
 use lazy_static::lazy_static;
 
-use tinybmp::Bmp;
-use embedded_graphics::pixelcolor::Rgb888;
+use tinytga::*;
 
-pub const SPLASHSCREEN_BMP_DATA: &'static [u8] = include_bytes!("../splashscreen.bmp");
+pub static SPLASHSCREEN_TGA_DATA: &'static [u8] = include_bytes!("../splashscreen.tga");
 
 lazy_static! {
-    pub static ref SPLASHSCREEN_BMP: Bmp<'static, Rgb888> = Bmp::from_slice(SPLASHSCREEN_BMP_DATA).expect("Failed to load splashscreen bmp!");
+    pub static ref SPLASHSCREEN_TGA: DynamicTga<'static, Rgb888> = DynamicTga::from_slice(SPLASHSCREEN_TGA_DATA).expect("Failed to load splashscreen tga!");
 }

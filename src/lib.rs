@@ -1,3 +1,4 @@
+use embedded_graphics::image::Image;
 use bitmap_font::{tamzen::FONT_5x9, TextStyle};
 use embedded_graphics::{pixelcolor::BinaryColor, prelude::*, text::Text};
 
@@ -73,13 +74,14 @@ impl Os {
 
     fn draw(&mut self, info: FrameInfo) {
         match self.state {
-            State::Splashscreen => {
+            State::Splashscreen => self.display.draw_image(0,0, &assets::SPLASHSCREEN_TGA),
+            State::CommandLineInterface => {
                 self.display.clear_black();
                 let cur_dir: String = std::env::current_dir().ok().map(|p| p.display().to_string()).unwrap_or(String::from("FAILED"));
                 let t = format!("time: {}\ncur_dir: {}\ndisk/hello.txt: {}", self.total_time, cur_dir, self.test);
                 let text = Text::new(&t, Point::zero(), TextStyle::new(&FONT_5x9, BinaryColor::On));
                 text.draw(&mut self.display.color_converted()).expect("Failed to draw text!");
-            },
+            }
             _ => {},
         }
         self.display.flush(info.buf);

@@ -1,7 +1,10 @@
-use embedded_graphics::pixelcolor::Rgb888;
+use embedded_graphics::pixelcolor::*;
 use embedded_graphics::draw_target::DrawTarget;
 use embedded_graphics::geometry::OriginDimensions;
+use embedded_graphics::image::Image;
 use embedded_graphics::prelude::*;
+
+use tinytga::*;
 
 use crate::{BUFFER_WIDTH, BUFFER_HEIGHT, BUFFER_LEN};
 
@@ -54,6 +57,10 @@ impl Display {
         let i = x + y * BUFFER_WIDTH;
         self.buf[i*4..i*4+4].copy_from_slice(&color);
         Ok(())
+    }
+
+    pub fn draw_image(&mut self, x: usize, y: usize, bmp: &DynamicTga<Rgb888>) {
+        Image::new(bmp, Point::new(x as i32, y as i32)).draw(&mut self.color_converted()).unwrap();
     }
 }
 

@@ -10,4 +10,4 @@ crate-type = ["cdylib"]
 lazy_static = "1.4.0"
 embedded-graphics = "0.7.1"
 bitmap-font = "0.2.2"
-tinybmp = "0.3.3"
+tinytga = "0.4.1"
