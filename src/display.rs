@@ -52,7 +52,8 @@ impl Display {
 
     pub fn set(&mut self, x: usize, y: usize, color: [u8; 4]) -> Result<(), DrawError> {
         if x >= BUFFER_WIDTH || y >= BUFFER_HEIGHT {
-            return Err(DrawError::SetOutOfRange);
+            // return Err(DrawError::SetOutOfRange);
+            return Ok(());
         }
         let i = x + y * BUFFER_WIDTH;
         self.buf[i*4..i*4+4].copy_from_slice(&color);
