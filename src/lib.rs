@@ -44,6 +44,10 @@ struct Os {
     total_time: f32,
     state: State,
 
+    tick_timer: f32,
+    const_tick_counter: usize,
+    const_tick_rate: usize, // In hz
+
     pub display: Display,
     pub console: Console,
 
@@ -57,6 +61,10 @@ impl Os {
             total_time: 0f32,
             state: State::Init,
 
+            tick_timer: 0.0,
+            const_tick_counter: 0,
+            const_tick_rate: 2,
+
             display: Display::new(),
             console: Console::new(),
 
@@ -65,8 +73,7 @@ impl Os {
     }
 
     fn initialize(&mut self) {
-        // self.test = std::fs::read_to_string("disk/hello.txt").unwrap().trim().to_string();
-        self.test = "shit".to_string();
+        self.test = std::fs::read_to_string("disk/hello.txt").unwrap().trim().to_string();
         self.state = State::Splashscreen;
     }
 
@@ -76,12 +83,40 @@ impl Os {
 
     fn update(&mut self, delta_s: f32) {
         self.total_time += delta_s;
+        self.tick_timer += delta_s;
+
+        while self.tick_timer > 1f32 / self.const_tick_rate as f32 {
+            self.const_tick_counter += 1;
+            self.fixed_update();
+            self.tick_timer -= 1f32 / self.const_tick_rate as f32;
+        }
 
         match self.state {
             State::Init => self.initialize(),
-            // State::Splashscreen => if self.total_time > 24.0 {
-            //     self.state = State::CommandLineInterface;
-            // },
+            _ => {},
+        }
+    }
+
+    fn fixed_update(&mut self) {
+        match self.state {
+            State::Splashscreen => {
+                if self.total_time < 3.8 {
+                    self.const_tick_counter = 0;
+                } else {
+                    const STARTUP_LINES: [&'static str; 3] = [
+                        "Loading hyper-assets...",
+                        "Generating quantum registers...",
+                        "Quantifying the prism...",
+                    ];
+                    let i = self.const_tick_counter - 1;
+                    if i < STARTUP_LINES.len() {
+                        self.console.print(STARTUP_LINES[i]);
+                    } else if self.const_tick_counter > STARTUP_LINES.len() { // If-statement only here to delay by 1 extra second
+                        self.state = State::CommandLineInterface;
+                        self.const_tick_rate = 30;
+                    }
+                }
+            }
             _ => {},
         }
     }
@@ -91,32 +126,23 @@ impl Os {
             State::Splashscreen =>  {
                 self.display.clear_black();
 
-                self.console.print(format!("t: {}", self.total_time));
-                self.console.flush_to_display(&mut self.display);
-
-                // let y = (144.0 - (self.total_time * 72.0).max(0.0).min(144.0)) as usize;
-                // let y = y - (((self.total_time - 3.0) * 72.0).max(0.0).min(144.0)) as usize;
-                // self.display.draw_image(0,y, &assets::SPLASHSCREEN_TGA);
-                //
-                // let text_y = 144 - ((self.total_time - 5.0) * 144.0 + 144.0).min(144.0) as usize;
-                // let text_y = (text_y as f32 / 10.0) as usize * 10 + 10;
-                //
-                // let t = "Loading resources...\nSetting up CPU registers...";
-                // let text = Text::new(&t, Point::new(0, text_y as i32), TextStyle::new(&FONT_5x9, BinaryColor::On));
-                // let _ = text.draw(&mut self.display.color_converted());
-
                 // A poor mans fade
-                // let mut fade = self.total_time.max(0.0).min(1.0);
-                // if self.total_time > 2.8 {
-                //     fade = 1.0 - (self.total_time - 2.8).max(0.0).min(1.0);
-                // }
-                // for x in 0..336 {
-                //     for y in 0..144 {
-                //         let c = self.display.get(x,y);
-                //         let c = [c[0], c[1], c[2], c[3]];
-                //         let _ = self.display.set(x,y, [(c[0] as f32 * fade) as u8, (c[1] as f32 * fade) as u8, (c[2] as f32 * fade) as u8, (c[3] as f32 * fade) as u8]);
-                //     }
-                // }
+                self.display.draw_image(0,0, &assets::SPLASHSCREEN_TGA);
+                let mut fade = self.total_time.max(0.0).min(1.0);
+                if self.total_time > 3.8 {
+                    fade = 0.0;
+                } else if self.total_time > 2.8 {
+                    fade = 1.0 - (self.total_time - 2.8).max(0.0).min(1.0);
+                }
+                for x in 0..336 {
+                    for y in 0..144 {
+                        let c = self.display.get(x,y);
+                        let c = [c[0], c[1], c[2], c[3]];
+                        let _ = self.display.set(x,y, [(c[0] as f32 * fade) as u8, (c[1] as f32 * fade) as u8, (c[2] as f32 * fade) as u8, (c[3] as f32 * fade) as u8]);
+                    }
+                }
+
+                self.console.flush_to_display(&mut self.display);
             },
             State::CommandLineInterface => {
                 self.display.clear_black();

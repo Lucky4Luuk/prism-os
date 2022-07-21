@@ -17,9 +17,9 @@ impl Console {
     pub fn print<S: Into<String>>(&mut self, s: S) {
         let s = s.into();
         if self.lines.is_full() {
-            self.lines.pop_back();
+            self.lines.pop_front();
         }
-        let _ = self.lines.push_front(s);
+        let _ = self.lines.push_back(s);
     }
 
     pub fn flush_to_display(&self, display: &mut crate::Display) {
