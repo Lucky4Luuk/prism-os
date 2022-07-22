@@ -105,15 +105,16 @@ impl Os {
                         let _ = self.display.set(x,y, [(c[0] as f32 * fade) as u8, (c[1] as f32 * fade) as u8, (c[2] as f32 * fade) as u8, (c[3] as f32 * fade) as u8]);
                     }
                 }
-
-                self.console.flush_to_display(&mut self.display);
             },
             State::CommandLineInterface => {
                 self.display.clear_black();
-                let cur_dir: String = std::env::current_dir().ok().map(|p| p.display().to_string()).unwrap_or(String::from("FAILED"));
-                let t = format!("time: {}\ncur_dir: {}\ndisk/hello.txt: {}", self.total_time, cur_dir, self.test);
-                let text = Text::new(&t, Point::zero(), TextStyle::new(&FONT_5x9, BinaryColor::On));
-                text.draw(&mut self.display.color_converted()).expect("Failed to draw text!");
+                self.console.print("first\nsecond\nthird\n");
+                self.console.print(format!("time: {}", self.total_time));
+                self.console.flush_to_display(&mut self.display);
+                // let cur_dir: String = std::env::current_dir().ok().map(|p| p.display().to_string()).unwrap_or(String::from("FAILED"));
+                // let t = format!("time: {}\ncur_dir: {}\ndisk/hello.txt: {}", self.total_time, cur_dir, self.test);
+                // let text = Text::new(&t, Point::zero(), TextStyle::new(&FONT_5x9, BinaryColor::On));
+                // text.draw(&mut self.display.color_converted()).expect("Failed to draw text!");
             }
             _ => {},
         }

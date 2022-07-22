@@ -16,10 +16,14 @@ impl Console {
 
     pub fn print<S: Into<String>>(&mut self, s: S) {
         let s = s.into();
-        if self.lines.is_full() {
+        let s = s.trim_end();
+        let split: Vec<&str> = s.split('\n').collect();
+        while self.lines.len() > (16 - split.len()) {
             self.lines.pop_front();
         }
-        let _ = self.lines.push_back(s);
+        for part in split {
+            let _ = self.lines.push_back(part.to_string());
+        }
     }
 
     pub fn flush_to_display(&self, display: &mut crate::Display) {
