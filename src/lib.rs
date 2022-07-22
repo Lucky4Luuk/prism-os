@@ -44,10 +44,6 @@ struct Os {
     total_time: f32,
     state: State,
 
-    tick_timer: f32,
-    const_tick_counter: usize,
-    const_tick_rate: usize, // In hz
-
     pub display: Display,
     pub console: Console,
 
@@ -60,10 +56,6 @@ impl Os {
             input: 0, // No keys pressed
             total_time: 0f32,
             state: State::Init,
-
-            tick_timer: 0.0,
-            const_tick_counter: 0,
-            const_tick_rate: 2,
 
             display: Display::new(),
             console: Console::new(),
@@ -83,40 +75,12 @@ impl Os {
 
     fn update(&mut self, delta_s: f32) {
         self.total_time += delta_s;
-        self.tick_timer += delta_s;
-
-        while self.tick_timer > 1f32 / self.const_tick_rate as f32 {
-            self.const_tick_counter += 1;
-            self.fixed_update();
-            self.tick_timer -= 1f32 / self.const_tick_rate as f32;
-        }
 
         match self.state {
             State::Init => self.initialize(),
-            _ => {},
-        }
-    }
-
-    fn fixed_update(&mut self) {
-        match self.state {
-            State::Splashscreen => {
-                if self.total_time < 3.8 {
-                    self.const_tick_counter = 0;
-                } else {
-                    const STARTUP_LINES: [&'static str; 3] = [
-                        "Loading hyper-assets...",
-                        "Generating quantum registers...",
-                        "Quantifying the prism...",
-                    ];
-                    let i = self.const_tick_counter - 1;
-                    if i < STARTUP_LINES.len() {
-                        self.console.print(STARTUP_LINES[i]);
-                    } else if self.const_tick_counter > STARTUP_LINES.len() { // If-statement only here to delay by 1 extra second
-                        self.state = State::CommandLineInterface;
-                        self.const_tick_rate = 30;
-                    }
-                }
-            }
+            State::Splashscreen => if self.total_time > 4.5 {
+                self.state = State::CommandLineInterface;
+            },
             _ => {},
         }
     }
