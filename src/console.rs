@@ -14,6 +14,10 @@ impl Console {
         }
     }
 
+    pub fn clear(&mut self) {
+        self.lines.clear();
+    }
+
     pub fn print<S: Into<String>>(&mut self, s: S) {
         let s = s.into();
         let s = s.trim_end();

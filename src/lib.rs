@@ -2,15 +2,15 @@
 
 use std::sync::Mutex;
 
-use bitmap_font::{tamzen::FONT_5x9, TextStyle};
-use embedded_graphics::{pixelcolor::BinaryColor, prelude::*, text::Text};
-
 mod display;
-mod console;
+pub mod console;
 mod assets;
+pub mod input;
+mod cli;
 
 use display::Display;
 use console::Console;
+use cli::Cli;
 
 const BUFFER_WIDTH: usize = 336;
 const BUFFER_HEIGHT: usize = 144;
@@ -46,8 +46,7 @@ struct Os {
 
     pub display: Display,
     pub console: Console,
-
-    test: String,
+    pub cli: Cli,
 }
 
 impl Os {
@@ -59,18 +58,17 @@ impl Os {
 
             display: Display::new(),
             console: Console::new(),
-
-            test: String::new(),
+            cli: Cli::new(),
         }
     }
 
     fn initialize(&mut self) {
-        self.test = std::fs::read_to_string("disk/hello.txt").unwrap().trim().to_string();
-        self.state = State::Splashscreen;
+        self.state = State::CommandLineInterface;
     }
 
     fn update_input(&mut self, input: u64) {
         self.input = input;
+        self.cli.input(self.input);
     }
 
     fn update(&mut self, delta_s: f32) {
@@ -108,13 +106,10 @@ impl Os {
             },
             State::CommandLineInterface => {
                 self.display.clear_black();
-                self.console.print("first\nsecond\nthird\n");
-                self.console.print(format!("time: {}", self.total_time));
+                self.console.clear();
+                self.console.print(format!("raw:\n{:#064b}", self.input));
+                self.console.print(format!("buttons:\n{:?}", input::input_to_vec(self.input)));
                 self.console.flush_to_display(&mut self.display);
-                // let cur_dir: String = std::env::current_dir().ok().map(|p| p.display().to_string()).unwrap_or(String::from("FAILED"));
-                // let t = format!("time: {}\ncur_dir: {}\ndisk/hello.txt: {}", self.total_time, cur_dir, self.test);
-                // let text = Text::new(&t, Point::zero(), TextStyle::new(&FONT_5x9, BinaryColor::On));
-                // text.draw(&mut self.display.color_converted()).expect("Failed to draw text!");
             }
             _ => {},
         }
