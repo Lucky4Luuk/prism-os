@@ -1,5 +1,5 @@
 #[repr(u8)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum Key {
     A,          //  0
     B,          //  1
@@ -60,6 +60,15 @@ pub enum Key {
     Back,       // 50
     Delete,     // 51
     Return,     // 52
+}
+
+impl Key {
+    pub fn if_letter_get(&self) -> Option<char> {
+        if (*self as u8) < 26 {
+            return Some((*self as u8 + 65) as char);
+        }
+        None
+    }
 }
 
 pub fn is_key_down(input: u64, key: Key) -> bool {

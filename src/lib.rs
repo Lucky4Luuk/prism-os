@@ -7,6 +7,7 @@ pub mod console;
 mod assets;
 pub mod input;
 mod cli;
+// mod runtime;
 
 use display::Display;
 use console::Console;
@@ -109,6 +110,7 @@ impl Os {
                 self.console.clear();
                 self.console.print(format!("raw:\n{:#064b}", self.input));
                 self.console.print(format!("buttons:\n{:?}", input::input_to_vec(self.input)));
+                self.console.print(format!("\ninput: {}", self.cli.input_buf));
                 self.console.flush_to_display(&mut self.display);
             }
             _ => {},
@@ -121,8 +123,16 @@ impl Os {
 
 static mut OS: Os = Os::new();
 
+extern "C" {
+    fn spawn_runtime(ptr: u32, len: u32);
+}
+
 #[no_mangle]
 pub extern "C" fn tick(input: u64, delta_s: f32) {
+    // println!("{:?}", std::fs::read("disk/hello.txt"));
+    unsafe { spawn_runtime(0,0) };
+    panic!("wop");
+
     unsafe {
         OS.update_input(input);
         OS.update(delta_s);

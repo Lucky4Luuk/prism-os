@@ -1,3 +1,5 @@
+use crate::input::*;
+
 pub struct Cli {
     prev_input: u64,
 
@@ -21,6 +23,15 @@ impl Cli {
         let pressed_input = pressed_input & !self.prev_input;
         self.prev_input = new_input;
 
-        
+        let pressed = input_to_vec(pressed_input);
+        for key in &pressed {
+            match key {
+                Key::Back => { self.input_buf.pop(); },
+                Key::Space => self.input_buf.push(' '),
+                _ => if let Some(c) = key.if_letter_get() {
+                    self.input_buf.push(c);
+                },
+            }
+        }
     }
 }
