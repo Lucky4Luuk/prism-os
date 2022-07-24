@@ -50,6 +50,10 @@ impl Cli {
     }
 
     pub fn flush_to_display(&mut self, display: &mut crate::Display) {
+        // self.console.print();
+        if let Some(s) = poslib::stdout_fetch(128) {
+            println!("{}", s);
+        }
         self.console.flush_to_display(display);
     }
 }
