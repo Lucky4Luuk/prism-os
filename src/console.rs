@@ -3,11 +3,11 @@ use embedded_graphics::{pixelcolor::BinaryColor, prelude::*, text::Text};
 
 use fixed_queue::VecDeque;
 
-pub struct Console {
-    pub lines: VecDeque<String, 16>,
+pub struct Console<const N: usize> {
+    pub lines: VecDeque<String, N>,
 }
 
-impl Console {
+impl<const N: usize> Console<N> {
     pub const fn new() -> Self {
         Self {
             lines: VecDeque::new(),
@@ -21,8 +21,8 @@ impl Console {
     pub fn print<S: Into<String>>(&mut self, s: S) {
         let s = s.into();
         let s = s.trim_end();
-        let split: Vec<&str> = s.split('\n').collect();
-        while self.lines.len() > (16 - split.len()) {
+        let split: Vec<String> = split_into_chunks(s.to_string(), 67).into_iter().map(|s| s.split('\n').map(|s| s.to_string()).collect::<Vec<String>>()).flatten().collect();
+        while self.lines.len() > (N - split.len()) {
             self.lines.pop_front();
         }
         for part in split {
@@ -31,7 +31,7 @@ impl Console {
     }
 
     pub fn flush_to_display(&self, display: &mut crate::Display) {
-        for i in 0..16 {
+        for i in 0..N {
             if let Some(line) = self.lines.get(i) {
                 let text = Text::new(line, Point::new(0, i as i32 * 9), TextStyle::new(&FONT_5x9, BinaryColor::On));
                 let _ = text.draw(&mut display.color_converted());
@@ -40,4 +40,8 @@ impl Console {
             }
         }
     }
+}
+
+fn split_into_chunks(s: String, n: usize) -> Vec<String> {
+    s.chars().collect::<Vec<char>>().chunks(n).map(|c| c.iter().collect::<String>()).collect()
 }

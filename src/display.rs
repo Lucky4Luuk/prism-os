@@ -63,6 +63,14 @@ impl Display {
     pub fn draw_image(&mut self, x: usize, y: usize, bmp: &DynamicTga<Rgb888>) {
         Image::new(bmp, Point::new(x as i32, y as i32)).draw(&mut self.color_converted()).unwrap();
     }
+
+    pub fn draw_text<S: Into<String>>(&mut self, x: usize, y: usize, text: S) {
+        use bitmap_font::{tamzen::FONT_5x9, TextStyle};
+        use embedded_graphics::{prelude::*, text::Text};
+        let text = text.into();
+        let drawtext = Text::new(&text, Point::new(x as i32, y as i32), TextStyle::new(&FONT_5x9, BinaryColor::On));
+        let _ = drawtext.draw(&mut self.color_converted());
+    }
 }
 
 impl OriginDimensions for Display {

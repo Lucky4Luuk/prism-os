@@ -40,13 +40,12 @@ enum State {
     CommandLineInterface,
 }
 
-struct Os {
+pub struct Os {
     input: u64,
     total_time: f32,
     state: State,
 
     pub display: Display,
-    pub console: Console,
     pub cli: Cli,
 
     pub running_program: Option<poslib::Program>,
@@ -60,7 +59,6 @@ impl Os {
             state: State::Init,
 
             display: Display::new(),
-            console: Console::new(),
             cli: Cli::new(),
 
             running_program: None,
@@ -111,11 +109,11 @@ impl Os {
             },
             State::CommandLineInterface => {
                 self.display.clear_black();
-                self.console.clear();
-                self.console.print(format!("raw:\n{:#064b}", self.input));
-                self.console.print(format!("buttons:\n{:?}", input::input_to_vec(self.input)));
-                self.console.print(format!("\ninput: {}", self.cli.input_buf));
-                self.console.flush_to_display(&mut self.display);
+                // self.console.clear();
+                // self.console.print(format!("raw:\n{:#064b}", self.input));
+                // self.console.print(format!("\ninput: {}", self.cli.input_buf));
+                self.display.draw_text(0,144-9, &format!("> {}", self.cli.input_buf));
+                self.cli.flush_to_display(&mut self.display);
             }
             _ => {},
         }
@@ -131,7 +129,7 @@ impl Os {
     }
 }
 
-static mut OS: Os = Os::new();
+pub static mut OS: Os = Os::new();
 
 #[no_mangle]
 pub extern "C" fn tick(input: u64, delta_s: f32) {

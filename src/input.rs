@@ -52,14 +52,15 @@ pub enum Key {
     Semicolon,  // 44
     Apostrophe, // 45
     Backslash,  // 46
+    Slash,      // 47
 
     // 47-51
-    Tab,        // 47
-    Escape,     // 48
-    Space,      // 49
-    Back,       // 50
-    Delete,     // 51
-    Return,     // 52
+    Tab,        // 48
+    Escape,     // 49
+    Space,      // 50
+    Back,       // 51
+    Delete,     // 52
+    Return,     // 53
 }
 
 impl Key {
@@ -67,7 +68,22 @@ impl Key {
         if (*self as u8) < 26 {
             return Some((*self as u8 + 65) as char);
         }
-        None
+        match self {
+            Self::Minus => Some('-'),
+            Self::Plus => Some('+'),
+            Self::Equals => Some('='),
+            Self::LBracket => Some('['),
+            Self::RBracket => Some(']'),
+            Self::Period => Some('.'),
+            Self::Comma => Some(','),
+            Self::Colon => Some(':'),
+            Self::Semicolon => Some(';'),
+            Self::Apostrophe => Some('\''),
+            Self::Backslash => Some('\\'),
+            Self::Slash => Some('/'),
+            Self::Space => Some(' '),
+            _ => None,
+        }
     }
 }
 

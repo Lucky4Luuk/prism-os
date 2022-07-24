@@ -1,9 +1,11 @@
+use crate::Console;
 use crate::input::*;
 
 pub struct Cli {
     prev_input: u64,
 
     pub input_buf: String,
+    pub console: Console<15>,
 }
 
 impl Cli {
@@ -12,6 +14,7 @@ impl Cli {
             prev_input: 0,
 
             input_buf: String::new(),
+            console: Console::new(),
         }
     }
 
@@ -27,11 +30,26 @@ impl Cli {
         for key in &pressed {
             match key {
                 Key::Back => { self.input_buf.pop(); },
-                Key::Space => self.input_buf.push(' '),
+                Key::Return => self.execute(),
                 _ => if let Some(c) = key.if_letter_get() {
                     self.input_buf.push(c);
                 },
             }
         }
+    }
+
+    pub fn execute(&mut self) {
+        self.console.print(format!("> {}", self.input_buf));
+        if self.input_buf.starts_with(".") {
+            self.console.print("Running local executables not supported yet!");
+        } else {
+            let split: Vec<String> = self.input_buf.split(" ").map(|s| s.to_owned()).collect();
+            self.console.print(format!("{:?}", unsafe { crate::OS.start_program(&format!("bin/{}.wasm", split[0])) }));
+        }
+        self.input_buf.clear();
+    }
+
+    pub fn flush_to_display(&mut self, display: &mut crate::Display) {
+        self.console.flush_to_display(display);
     }
 }
