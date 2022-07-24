@@ -48,6 +48,8 @@ struct Os {
     pub display: Display,
     pub console: Console,
     pub cli: Cli,
+
+    pub running_program: Option<poslib::Program>,
 }
 
 impl Os {
@@ -60,6 +62,8 @@ impl Os {
             display: Display::new(),
             console: Console::new(),
             cli: Cli::new(),
+
+            running_program: None,
         }
     }
 
@@ -119,15 +123,18 @@ impl Os {
             self.display.flush(lock.buf);
         }
     }
+
+    pub fn start_program<S: Into<String>>(&mut self, path: S) -> Result<(), std::io::Error> {
+        let prog = poslib::run_program(path)?;
+        self.running_program = Some(prog);
+        Ok(())
+    }
 }
 
 static mut OS: Os = Os::new();
 
 #[no_mangle]
 pub extern "C" fn tick(input: u64, delta_s: f32) {
-    let prog = poslib::run_program("edit.wasm").expect("Failed to load code!");
-    panic!("poslib!!! prog id: {}", prog.id);
-
     unsafe {
         OS.update_input(input);
         OS.update(delta_s);
