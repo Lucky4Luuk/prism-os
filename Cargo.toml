@@ -7,6 +7,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+poslib = { path = "poslib" }
 lazy_static = "1.4.0"
 embedded-graphics = "0.7.1"
 bitmap-font = "0.2.2"

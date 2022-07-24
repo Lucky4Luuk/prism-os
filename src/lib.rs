@@ -123,15 +123,10 @@ impl Os {
 
 static mut OS: Os = Os::new();
 
-extern "C" {
-    fn spawn_runtime(ptr: u32, len: u32);
-}
-
 #[no_mangle]
 pub extern "C" fn tick(input: u64, delta_s: f32) {
-    // println!("{:?}", std::fs::read("disk/hello.txt"));
-    unsafe { spawn_runtime(0,0) };
-    panic!("wop");
+    let prog = poslib::run_program("edit.wasm").expect("Failed to load code!");
+    panic!("poslib!!! prog id: {}", prog.id);
 
     unsafe {
         OS.update_input(input);
