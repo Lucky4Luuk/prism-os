@@ -1,2 +1,5 @@
 #[no_mangle]
-pub extern "C" fn prog_tick(input: u64, delta_s: f32) {}
+pub extern "C" fn tick(input: u64, delta_s: f32) -> u32 {
+    println!("hi from edit!");
+    1
+}

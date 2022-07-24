@@ -132,10 +132,11 @@ impl Os {
 pub static mut OS: Os = Os::new();
 
 #[no_mangle]
-pub extern "C" fn tick(input: u64, delta_s: f32) {
+pub extern "C" fn tick(input: u64, delta_s: f32) -> u32 {
     unsafe {
         OS.update_input(input);
         OS.update(delta_s);
         OS.draw();
     }
+    0
 }
