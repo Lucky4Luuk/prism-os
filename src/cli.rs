@@ -1,11 +1,15 @@
 use crate::Console;
 use crate::input::*;
 
+use fixed_queue::VecDeque;
+
 pub struct Cli {
     prev_input: u64,
 
     pub input_buf: String,
     pub console: Console<15>,
+
+    command_history: VecDeque<String, 32>,
 }
 
 impl Cli {
@@ -15,6 +19,8 @@ impl Cli {
 
             input_buf: String::new(),
             console: Console::new(),
+
+            command_history: VecDeque::new(),
         }
     }
 
@@ -44,7 +50,9 @@ impl Cli {
             self.console.print("Running local executables not supported yet!");
         } else {
             let split: Vec<String> = self.input_buf.split(" ").map(|s| s.to_owned()).collect();
-            self.console.print(format!("{:?}", unsafe { crate::OS.start_program(&format!("bin/{}.wasm", split[0])) }));
+            if let Err(e) = unsafe { crate::OS.start_program(&format!("bin/{}.wasm", split[0])) } {
+                self.console.print(format!("{:?}", e));
+            }
         }
         self.input_buf.clear();
     }
