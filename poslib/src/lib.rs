@@ -24,7 +24,6 @@ pub fn stdout_fetch(bytes: usize) -> Option<String> {
     let buf = vec![0u8; bytes]; // Read N bytes every time
     let bytes_read = unsafe { read_stdout(buf.as_ptr() as u64, buf.len() as u64) } as usize;
     if bytes_read > 0 {
-        println!("bytes_read: {}", bytes_read);
         std::str::from_utf8(&buf[..bytes_read]).map(|s| s.to_string()).ok()
     } else {
         None
