@@ -48,7 +48,7 @@ impl Os {
     }
 
     fn initialize(&mut self) {
-        self.state = State::Splashscreen;
+        self.state = State::CommandLineInterface;
     }
 
     fn update_input(&mut self, input: u64) {
@@ -91,13 +91,11 @@ impl Os {
             },
             State::CommandLineInterface => {
                 self.display.clear_black();
-                // self.console.clear();
-                // self.console.print(format!("raw:\n{:#064b}", self.input));
-                // self.console.print(format!("\ninput: {}", self.cli.input_buf));
-                self.display.draw_text(0,144-9, &format!("> {}", self.cli.input_buf));
-                self.cli.flush_to_display(&mut self.display);
 
-                // self.display.set(1,1, 4);
+                let cursor = if self.total_time % 1.0 > 0.5 { '_' } else { ' ' };
+                self.display.draw_text(0,144-9, &format!("> {}{}", self.cli.input_buf, cursor));
+
+                self.cli.flush_to_display(&mut self.display);
             }
             _ => {},
         }

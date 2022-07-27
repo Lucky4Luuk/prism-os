@@ -2,7 +2,7 @@
 
 use std::sync::Mutex;
 
-use poslib::{BUFFER_WIDTH, BUFFER_HEIGHT, FrameInfo, Display};
+use poslib::*;
 
 lazy_static! {
     pub static ref FRAME_INFO: Mutex<FrameInfo<'static>> = Mutex::new(FrameInfo::new(0x80));
@@ -23,12 +23,20 @@ impl App {
 
     fn draw(&mut self) {
         self.display.clear_black();
+        // self.display.with_func(|x,y| {
+        //     let r = (x * 255 / 336) as u8;
+        //     let g = (y * 255 / 144) as u8;
+        //     let b = 0;
+        //     let (pal, _) = poslib::find_palette(r,g,b);
+        //     pal
+        // });
         self.display.with_func(|x,y| {
-            let r = (x * 255 / 336) as u8;
-            let g = (y * 255 / 144) as u8;
-            let b = 0;
-            let (pal, _) = poslib::find_palette(r,g,b);
-            pal
+            let size = 24;
+            let mut i = ((x / size) + (y / size) * (BUFFER_WIDTH / size));
+            if i >= PALETTE_SIZE {
+                i = 0;
+            }
+            i as u8
         });
         if let Ok(mut lock) = FRAME_INFO.lock() {
             self.display.flush(lock.buf);

@@ -59,6 +59,8 @@ impl Cli {
     }
 
     pub fn execute(&mut self) {
+        if self.input_buf.is_empty() { return; } // Do nothing when there's no input
+
         if self.command_history.is_full() { self.command_history.pop_back(); }
         let _ = self.command_history.push_front(self.input_buf.clone());
         self.command_history_index = 0;
@@ -77,7 +79,6 @@ impl Cli {
 
     pub fn flush_to_display(&mut self, display: &mut crate::Display) {
         if let Some(s) = poslib::stdout_fetch(128) {
-            // println!("{}", s);
             self.console.print(s);
         }
         self.console.flush_to_display(display);

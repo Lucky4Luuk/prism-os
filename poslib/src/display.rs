@@ -169,7 +169,7 @@ const PALETTE: [[u8; 3]; 76] = [
 	[218,181,128],
 	[243,231,168],
 ];
-const PALETTE_SIZE: usize = 76;
+pub const PALETTE_SIZE: usize = 76;
 
 pub fn find_palette(r: u8, g: u8, b: u8) -> (u8, f32) {
     fn delta(left: [u8; 3], right: [u8; 3]) -> f32 {
