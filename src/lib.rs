@@ -74,7 +74,7 @@ impl Os {
                 self.display.clear_black();
 
                 // A poor mans fade
-                // self.display.draw_image(0,0, &assets::SPLASHSCREEN_TGA);
+                self.display.draw_image(0,0, &assets::SPLASHSCREEN_TGA);
                 // let mut fade = self.total_time.max(0.0).min(1.0);
                 // if self.total_time > 3.8 {
                 //     fade = 0.0;
