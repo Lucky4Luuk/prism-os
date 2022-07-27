@@ -48,7 +48,7 @@ impl Os {
     }
 
     fn initialize(&mut self) {
-        self.state = State::CommandLineInterface;
+        self.state = State::Splashscreen;
     }
 
     fn update_input(&mut self, input: u64) {

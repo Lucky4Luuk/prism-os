@@ -24,7 +24,11 @@ impl App {
     fn draw(&mut self) {
         self.display.clear_black();
         self.display.with_func(|x,y| {
-            ((x + y) % 29) as u8
+            let r = (x * 255 / 336) as u8;
+            let g = (y * 255 / 144) as u8;
+            let b = 0;
+            let (pal, _) = poslib::find_palette(r,g,b);
+            pal
         });
         if let Ok(mut lock) = FRAME_INFO.lock() {
             self.display.flush(lock.buf);
