@@ -1,6 +1,26 @@
+mod display;
+pub use display::*;
+
+pub const BUFFER_WIDTH: usize = 336;
+pub const BUFFER_HEIGHT: usize = 144;
+pub const BUFFER_LEN: usize = BUFFER_WIDTH * BUFFER_HEIGHT;
+
 extern "C" {
     fn spawn_runtime(ptr: u64, len: u64) -> u64;
     fn read_stdout(buf_ptr: u64, len: u64) -> u64;
+}
+
+#[derive(Default)]
+pub struct FrameInfo<'frame> {
+    pub buf: &'frame mut [u8],
+}
+
+impl FrameInfo<'_> {
+    pub fn new(mem_addr: u32) -> Self {
+        Self {
+            buf: unsafe { std::slice::from_raw_parts_mut(mem_addr as *mut u8, 336*144) },
+        }
+    }
 }
 
 pub struct Program {

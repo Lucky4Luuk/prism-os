@@ -10,6 +10,7 @@ pub struct Cli {
     pub console: Console<15>,
 
     command_history: VecDeque<String, 32>,
+    command_history_index: u8, // 0 = current command
 }
 
 impl Cli {
@@ -21,6 +22,7 @@ impl Cli {
             console: Console::new(),
 
             command_history: VecDeque::new(),
+            command_history_index: 0,
         }
     }
 
@@ -37,14 +39,30 @@ impl Cli {
             match key {
                 Key::Back => { self.input_buf.pop(); },
                 Key::Return => self.execute(),
-                _ => if let Some(c) = key.if_letter_get() {
+                Key::ArrowUp => self.command_history_index = (self.command_history_index + 1).min(15),
+                Key::ArrowDown => if self.command_history_index > 0 {
+                    self.command_history_index = self.command_history_index - 1;
+                } else {
+                    self.input_buf = String::new();
+                },
+                _ => if let Some(c) = key.if_letter_get(is_key_down(new_input, Key::Shift)) {
                     self.input_buf.push(c);
                 },
+            }
+        }
+
+        if self.command_history_index > 0 {
+            if let Some(v) = self.command_history.get((self.command_history_index - 1) as usize) {
+                self.input_buf = v.to_string();
             }
         }
     }
 
     pub fn execute(&mut self) {
+        if self.command_history.is_full() { self.command_history.pop_back(); }
+        let _ = self.command_history.push_front(self.input_buf.clone());
+        self.command_history_index = 0;
+
         self.console.print(format!("> {}", self.input_buf));
         if self.input_buf.starts_with(".") {
             self.console.print("Running local executables not supported yet!");

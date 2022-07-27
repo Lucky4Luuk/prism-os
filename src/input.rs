@@ -40,7 +40,7 @@ pub enum Key {
     Key8,       // 34
     Key9,       // 35
 
-    // 36-46
+    // 36-47
     Minus,      // 36
     Plus,       // 37
     Equals,     // 38
@@ -54,20 +54,44 @@ pub enum Key {
     Backslash,  // 46
     Slash,      // 47
 
-    // 47-51
+    // 48-54
     Tab,        // 48
     Escape,     // 49
     Space,      // 50
     Back,       // 51
     Delete,     // 52
     Return,     // 53
+    Shift,      // 54
+
+    // 55-58
+    ArrowUp,    // 55
+    ArrowDown,  // 56
+    ArrowLeft,  // 57
+    ArrowRight, // 58
 }
 
 impl Key {
-    pub fn if_letter_get(&self) -> Option<char> {
+    pub fn if_letter_get(&self, shift: bool) -> Option<char> {
         if (*self as u8) < 26 {
             return Some((*self as u8 + 65) as char);
         }
+
+        if shift {
+            return match self {
+                Self::Minus => Some('_'),
+                Self::Equals => Some('+'),
+                Self::LBracket => Some('{'),
+                Self::RBracket => Some('}'),
+                Self::Period => Some('>'),
+                Self::Comma => Some('<'),
+                Self::Semicolon => Some(':'),
+                Self::Apostrophe => Some('"'),
+                Self::Backslash => Some('|'),
+                Self::Slash => Some('?'),
+                _ => None,
+            };
+        }
+
         match self {
             Self::Minus => Some('-'),
             Self::Plus => Some('+'),
@@ -89,7 +113,7 @@ impl Key {
 
 pub fn is_key_down(input: u64, key: Key) -> bool {
     let key_id = key as u8;
-    (input & (1 >> key_id)) == 1
+    (input & (1 << key_id)) > 0
 }
 
 pub fn input_to_vec(input: u64) -> Vec<Key> {

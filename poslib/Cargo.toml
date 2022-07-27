@@ -4,3 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+embedded-graphics = "0.7.1"
+bitmap-font = "0.2.2"
+tinytga = "0.4.1"

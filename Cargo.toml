@@ -9,7 +9,10 @@ crate-type = ["cdylib"]
 [dependencies]
 poslib = { path = "poslib" }
 lazy_static = "1.4.0"
+
 embedded-graphics = "0.7.1"
-bitmap-font = "0.2.2"
+embedded-text = "0.5.0"
+profont = "0.6.1"
 tinytga = "0.4.1"
+
 fixed-queue = "0.5.1"

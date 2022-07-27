@@ -31,13 +31,10 @@ impl Display {
     pub fn clear_black(&mut self) {
         for i in 0..BUFFER_LEN {
             self.buf[i] = 0;
-            if i % 3 == 3 {
-                self.buf[i] = 255;
-            }
         }
     }
 
-    pub fn with_func<F: Fn(usize, usize) -> [u8; 4]>(&mut self, f: F) {
+    pub fn with_func<F: Fn(usize, usize) -> u8>(&mut self, f: F) {
         for x in 0..BUFFER_WIDTH {
             for y in 0..BUFFER_HEIGHT {
                 let _ = self.set(x, y, f(x,y)); // We should not be able to trigger an error here, so we just ignore it :)
@@ -45,18 +42,18 @@ impl Display {
         }
     }
 
-    pub fn get(&mut self, x: usize, y: usize) -> &[u8] {
+    pub fn get(&mut self, x: usize, y: usize) -> u8 {
         let i = x + y * BUFFER_WIDTH;
-        &self.buf[i*4..i*4+4]
+        self.buf[i]
     }
 
-    pub fn set(&mut self, x: usize, y: usize, color: [u8; 4]) -> Result<(), DrawError> {
+    pub fn set(&mut self, x: usize, y: usize, color: u8) -> Result<(), DrawError> {
         if x >= BUFFER_WIDTH || y >= BUFFER_HEIGHT {
             // return Err(DrawError::SetOutOfRange);
             return Ok(());
         }
         let i = x + y * BUFFER_WIDTH;
-        self.buf[i*4..i*4+4].copy_from_slice(&color);
+        self.buf[i] = color;
         Ok(())
     }
 
@@ -87,8 +84,65 @@ impl DrawTarget for Display {
             let x = pixel.0.x as usize;
             let y = pixel.0.y as usize;
             let c = pixel.1;
-            self.set(x,y, [c.r(), c.g(), c.b(), 255])?;
+            self.set(x,y, find_palette(c.r(), c.g(), c.b()))?;
         }
         Ok(())
     }
+}
+
+const PALETTE: [[u8; 3]; 29] = [
+    [  0,  0,  0], // black
+    [204, 36, 29], // red
+    [152,151, 26], // green
+    [215,153, 33], // yellow
+    [ 69,133,136], // blue
+    [177, 98,134], // purple
+    [104,157,106], // aqua
+    [214, 93, 14], // orange
+
+    [251, 73, 52], // light_red
+    [184,187, 38], // light_green
+    [250,189, 47], // light_yellow
+    [131,165,152], // light_blue
+    [211,134,155], // light_purple
+    [142,192,124], // light_aqua
+    [254,128, 25], // light_orange
+
+    [ 40, 40, 40], // bg0
+    [ 60, 56, 54], // bg1
+    [ 80, 73, 69], // bg2
+    [102, 92, 84], // bg3
+    [124,111,100], // bg4
+    [168,153,132], // gray0
+    [146,131,116], // gray1
+
+    [168,153,132], // fg4
+    [189,174,147], // fg3
+    [213,196,161], // fg2
+    [235,219,178], // fg1
+    [251,241,199], // fg0,
+
+    [ 29, 32, 33], // bg0_hard
+    [ 50, 48, 47], // bg0_soft
+];
+
+pub fn find_palette(r: u8, g: u8, b: u8) -> u8 {
+    fn delta(a: [u8; 3], b: [u8; 3]) -> f32 {
+        let mut delta = 0f32;
+        for i in 0..3 {
+            delta += (a[i] as f32 - b[i] as f32).abs();
+        }
+        delta / 3f32
+    }
+
+    let mut closest = 0;
+    let mut closest_delta = delta([r,g,b], PALETTE[closest]);
+    for i in 1..PALETTE.len() {
+        let d = delta([r,g,b], PALETTE[i]);
+        if d < closest_delta {
+            closest = i;
+            closest_delta = d;
+        }
+    }
+    closest as u8
 }

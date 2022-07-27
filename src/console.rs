@@ -1,5 +1,10 @@
-use bitmap_font::{tamzen::FONT_5x9, TextStyle};
-use embedded_graphics::{pixelcolor::BinaryColor, prelude::*, text::Text};
+use embedded_graphics::{pixelcolor::BinaryColor, prelude::*, primitives::Rectangle, mono_font::*};
+
+use embedded_text::{
+    alignment::HorizontalAlignment,
+    style::{HeightMode, TextBoxStyleBuilder},
+    TextBox,
+};
 
 use fixed_queue::VecDeque;
 
@@ -31,14 +36,35 @@ impl<const N: usize> Console<N> {
     }
 
     pub fn flush_to_display(&self, display: &mut crate::Display) {
+        // for i in 0..N {
+        //     if let Some(line) = self.lines.get(i) {
+        //         let text = Text::new(line, Point::new(0, i as i32 * 9), TextStyle::new(&FONT_5x9, BinaryColor::On));
+        //         let _ = text.draw(&mut display.color_converted());
+        //     } else {
+        //         break;
+        //     }
+        // }
+
+        let character_style = MonoTextStyle::new(&profont::PROFONT_7_POINT, BinaryColor::On);
+        let textbox_style = TextBoxStyleBuilder::new()
+            .height_mode(HeightMode::FitToText)
+            .alignment(HorizontalAlignment::Justified)
+            .paragraph_spacing(0)
+            .build();
+        let bounds = Rectangle::new(Point::zero(), Size::new(336, 144));
+
+        let mut text = String::new();
         for i in 0..N {
             if let Some(line) = self.lines.get(i) {
-                let text = Text::new(line, Point::new(0, i as i32 * 9), TextStyle::new(&FONT_5x9, BinaryColor::On));
-                let _ = text.draw(&mut display.color_converted());
+                text.push_str(line);
+                text.push('\n');
             } else {
                 break;
             }
         }
+
+        let text_box = TextBox::with_textbox_style(&text, bounds, character_style, textbox_style);
+        let _ = text_box.draw(&mut display.color_converted());
     }
 }
 
