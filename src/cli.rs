@@ -39,7 +39,7 @@ impl Cli {
             match key {
                 Key::Back => { self.input_buf.pop(); },
                 Key::Return => self.execute(),
-                Key::ArrowUp => self.command_history_index = (self.command_history_index + 1).min(15),
+                Key::ArrowUp => self.command_history_index = (self.command_history_index + 1).min(31),
                 Key::ArrowDown => if self.command_history_index > 0 {
                     self.command_history_index = self.command_history_index - 1;
                 } else {
